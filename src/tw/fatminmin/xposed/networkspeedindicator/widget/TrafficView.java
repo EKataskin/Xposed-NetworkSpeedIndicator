@@ -90,20 +90,19 @@ public class TrafficView extends TextView {
 	}
 	
 	@SuppressLint("NewApi")
-	public void refreshColor() {
-		switch(prefColorMode) {
-		case 0:
-			if(clock != null) {
-				setTextColor(clock.getCurrentTextColor());
-			}
-			else {
-				// gingerbread;
-				setTextColor(Color.parseColor("#33b5e5"));
-			}
-			break;
-		case 1:
-			setTextColor(prefColor);
-			break;
+	public void refreshColor()
+	{
+		switch( prefColorMode )
+		{
+			case 0:
+				if( clock!=null )
+					setTextColor( clock.getCurrentTextColor() );
+				else // gingerbread;
+					setTextColor( Color.parseColor( "#33b5e5" ) );
+				break;
+			case 1:
+				setTextColor( prefColor );
+				break;
 		}
 	}
 	
@@ -167,15 +166,15 @@ public class TrafficView extends TextView {
 	};
 
 	@SuppressLint("HandlerLeak")
-    Handler mTrafficHandler = new Handler() {
+	Handler mTrafficHandler = new Handler()
+	{
 		@Override
-		public void handleMessage(Message msg) {
+		public void handleMessage(Message msg)
+		{
 			long td = SystemClock.elapsedRealtime() - lastUpdateTime;
-			if (td == 0) {
+			if (td == 0)
 				return;
-			}
-			
-			
+
 			uploadSpeed = (TrafficStats.getTotalTxBytes() - totalTxBytes) * 1000 / td;
 			downloadSpeed = (TrafficStats.getTotalRxBytes() - totalRxBytes) * 1000 / td;
 			totalTxBytes = TrafficStats.getTotalTxBytes();
@@ -234,130 +233,115 @@ public class TrafficView extends TextView {
 		mTrafficHandler.sendEmptyMessage(0);
 	}
 
-	private String createText() {
+	private String createText()
+	{
 		String uploadUnit, downloadUnit;
 		float uploadValue, downloadValue;
+		float upSpeed=uploadSpeed;
+		float downSpeed=downloadSpeed;
 		
-		
-		
-		switch (prefForceUnit) {
-		default:
-		case 0:
-		    
-		    if (((float) uploadSpeed) / 1048576 >= 1) { // 1024 * 1024 113
-                uploadValue = ((float) uploadSpeed) / 1048576f;
-                uploadUnit = "MB";
-                uploadDecimalFormat = new DecimalFormat(" ##0.0");
-            } else if (((float) uploadSpeed) / 1024f >= 1) {
-                uploadValue = ((float) uploadSpeed) / 1024f;
-                uploadUnit = "KB";
-                uploadDecimalFormat = new DecimalFormat(" ##0");
-            } else {
-                uploadValue = uploadSpeed;
-                uploadUnit = "B";
-                uploadDecimalFormat = new DecimalFormat(" ##0");
-            }
-		    
-			if (((float) downloadSpeed) / 1048576 >= 1) { // 1024 * 1024 113
-				downloadValue = ((float) downloadSpeed) / 1048576f;
-				downloadUnit = "MB";
-				downloadDecimalFormat = new DecimalFormat(" ##0.0");
-			} else if (((float) downloadSpeed) / 1024f >= 1) {
-				downloadValue = ((float) downloadSpeed) / 1024f;
-				downloadUnit = "KB";
-				downloadDecimalFormat = new DecimalFormat(" ##0");
-			} else {
-				downloadValue = downloadSpeed;
-				downloadUnit = "B";
-				downloadDecimalFormat = new DecimalFormat(" ##0");
-			}
-			break;
-		case 1:
-			downloadValue = downloadSpeed;
-			uploadValue = uploadSpeed;
-			uploadUnit = downloadUnit = "B";
-			uploadDecimalFormat = downloadDecimalFormat = new DecimalFormat(" ##0");
-			break;
-		case 2:
-			downloadValue = ((float) downloadSpeed) / 1024f;
-			uploadValue = ((float) uploadSpeed) / 1024f;
-			uploadUnit = downloadUnit = "KB";
-			uploadDecimalFormat = downloadDecimalFormat = new DecimalFormat(" ##0");
-			break;
-		case 3:
-			downloadValue = ((float) downloadSpeed) / 1048576f;
-			uploadValue = ((float) uploadSpeed) / 1048576f;
-			uploadUnit = downloadUnit = "MB";
-			uploadDecimalFormat = downloadDecimalFormat = new DecimalFormat(" ##0.0");
-			break;
+		switch( prefForceUnit )
+		{
+			default:
+			case 0:
+				if( upSpeed/1024f >= 1000 )
+				{
+					uploadValue=upSpeed/1048576f;
+					uploadUnit="MB";
+				}
+				else
+				{
+					uploadValue=upSpeed/1024f;
+					uploadUnit="KB";
+				}
+				uploadDecimalFormat=new DecimalFormat( " ##0.0" );
+
+				if( downSpeed/1024f >= 1000 )
+				{
+					downloadValue=downSpeed/1048576f;
+					downloadUnit="MB";
+				}
+				else
+				{
+					downloadValue=downSpeed/1024f;
+					downloadUnit="KB";
+				}
+				downloadDecimalFormat=new DecimalFormat( " ##0.0" );
+				break;
+			case 1:
+				downloadValue=downloadSpeed;
+				uploadValue=uploadSpeed;
+				uploadUnit=downloadUnit="B";
+				uploadDecimalFormat=downloadDecimalFormat=new DecimalFormat( " ##0" );
+				break;
+			case 2:
+				downloadValue=downSpeed/1024f;
+				uploadValue=upSpeed/1024f;
+				uploadUnit=downloadUnit="KB";
+				uploadDecimalFormat=downloadDecimalFormat=new DecimalFormat( " ##0.0" );
+				break;
+			case 3:
+				downloadValue=downSpeed/1048576f;
+				uploadValue=upSpeed/1048576f;
+				uploadUnit=downloadUnit="MB";
+				uploadDecimalFormat=downloadDecimalFormat=new DecimalFormat( " ##0.0" );
+				break;
 		}
-		
-		
+
 		String strUploadValue, strDownloadValue;
-		
-		if (prefHideInactive && uploadValue <= 0) {
-            strUploadValue = "";
-        }
-        else {
-            strUploadValue = uploadDecimalFormat.format(uploadValue);
-        }
-		if (prefHideInactive && downloadSpeed <= 0) {
-		    strDownloadValue = "";
-        }
-		else {
-		    strDownloadValue = downloadDecimalFormat.format(downloadValue);
+
+		if( prefHideInactive && uploadValue<=0 )
+			strUploadValue="";
+		else
+			strUploadValue=uploadDecimalFormat.format( uploadValue );
+		if( prefHideInactive && downloadSpeed<=0 )
+			strDownloadValue="";
+		else
+			strDownloadValue=downloadDecimalFormat.format( downloadValue );
+
+		switch( prefSuffix )
+		{
+			case 0:
+				uploadSuffix=downloadSuffix=" ";
+				break;
+			case 1:
+				uploadSuffix=" \u25B2 ";
+				downloadSuffix=" \u25BC ";
+				break;
+			case 2:
+				uploadSuffix=" \u25B3 ";
+				downloadSuffix=" \u25BD ";
+				break;
 		}
-		
-		switch(prefSuffix) {
-		case 0:
-		    uploadSuffix = downloadSuffix = " ";
-		    break;
-		case 1:
-		    uploadSuffix = " \u25B2 ";
-		    downloadSuffix = " \u25BC ";
-		    break;
-		case 2:
-		    uploadSuffix = " \u25B3 ";
-		    downloadSuffix = " \u25BD ";
-		    break;
+
+		if( strUploadValue.length()>0 )
+		{
+			if( !prefHideUnit )
+				strUploadValue+=" "+uploadUnit;
+			strUploadValue+=uploadSuffix;
 		}
-		
-		if(strUploadValue.length() > 0) {
-		    if(!prefHideUnit) {
-		        strUploadValue += " " + uploadUnit;
-		    }
-		    strUploadValue += uploadSuffix;
+		if( strDownloadValue.length()>0 )
+		{
+			if( !prefHideUnit )
+				strDownloadValue+=" "+downloadUnit;
+			strDownloadValue+=downloadSuffix;
 		}
-		if(strDownloadValue.length() > 0) {
-		    if(!prefHideUnit) {
-		        strDownloadValue += " " + downloadUnit;
-		    }
-		    strDownloadValue += downloadSuffix;
-		}
-		
-		if(!prefShowUploadSpeed) {
-		    strUploadValue = "";
-		}
-		if(!prefShowDownloadSpeed) {
-		    strDownloadValue = "";
-		}
-		
-		String delimeter = "";
-		if(prefDisplay == 0) {
-		    delimeter = "\n";
-		}
-		else {
-		    delimeter = " ";
-		}
-		
-		String ret = "";
-		if(strUploadValue.length() > 0 && strDownloadValue.length() > 0) {
-		    ret = strUploadValue + delimeter + strDownloadValue; 
-		}
-		else {
-		    ret = strUploadValue + strDownloadValue;
-		}
-		return ret;
+
+		if( !prefShowUploadSpeed )
+			strUploadValue="";
+		if( !prefShowDownloadSpeed )
+			strDownloadValue="";
+
+		String delimiter;
+		if( prefDisplay==0 )
+			delimiter="\n";
+		else
+			delimiter=" ";
+
+		if( strUploadValue.length()>0 && strDownloadValue.length()>0 )
+			return strUploadValue+delimiter+strDownloadValue;
+		else
+			return strUploadValue+strDownloadValue;
 	}
 
 	public void update() {
@@ -372,13 +356,12 @@ public class TrafficView extends TextView {
 		}
 	};
 	
-	private boolean isCorrectNetworkType() {
-	    if(prefNetworkType == null || prefNetworkType.equals("both")) {
+	private boolean isCorrectNetworkType()
+	{
+	    if( prefNetworkType==null || prefNetworkType.equals( "both" ) )
 	        return true;
-	    }
-	    else {
-	        return prefNetworkType.contains(networkType);
-	    }
+	    else
+	        return prefNetworkType.contains( networkType );
 	}
 	
 	private void updateViewVisibility() {
