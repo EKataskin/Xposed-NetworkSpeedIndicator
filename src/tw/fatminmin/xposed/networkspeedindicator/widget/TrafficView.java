@@ -24,10 +24,10 @@ import android.widget.TextView;
 import de.robv.android.xposed.XSharedPreferences;
 
 @SuppressLint("HandlerLeak")
-public class TrafficView extends TextView {
-
-    public PositionCallback mPositionCallback = null;
-    public TextView clock = null;
+public class TrafficView extends TextView
+{
+	public PositionCallback mPositionCallback = null;
+	public TextView clock = null;
     
 	private static final String TAG = TrafficView.class.getSimpleName();
 	private DecimalFormat uploadDecimalFormat, downloadDecimalFormat;
@@ -56,9 +56,6 @@ public class TrafficView extends TextView {
 	boolean prefHideInactive;
 	String prefNetworkType;
 	
-	String uploadSuffix = "";
-	String downloadSuffix = "";
-
 	public TrafficView(Context context) {
 		this(context, null);
 		mAttached = false;
@@ -106,15 +103,18 @@ public class TrafficView extends TextView {
 		}
 	}
 	
-	private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
-
+	private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver()
+	{
 		@Override
-		public void onReceive(Context context, Intent intent) {
+		public void onReceive(Context context, Intent intent)
+		{
 			String action = intent.getAction();
-			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION))
+			{
 				updateConnectionInfo();
 				updateViewVisibility();
-			} else if (action.equals(Common.ACTION_SETTINGS_CHANGED)) {
+			} else if (action.equals(Common.ACTION_SETTINGS_CHANGED))
+			{
 				Log.i(TAG, "SettingsChanged");
 				if (intent.hasExtra(Common.KEY_FORCE_UNIT)) {
 					prefForceUnit = intent.getIntExtra(Common.KEY_FORCE_UNIT, Common.DEF_FORCE_UNIT);
@@ -165,29 +165,29 @@ public class TrafficView extends TextView {
 		}
 	};
 
-	@SuppressLint("HandlerLeak")
-	Handler mTrafficHandler = new Handler()
+	@SuppressLint( "HandlerLeak" )
+	Handler mTrafficHandler=new Handler()
 	{
 		@Override
-		public void handleMessage(Message msg)
+		public void handleMessage( Message msg )
 		{
-			long td = SystemClock.elapsedRealtime() - lastUpdateTime;
-			if (td == 0)
+			long td=SystemClock.elapsedRealtime()-lastUpdateTime;
+			if( td==0 )
 				return;
 
-			uploadSpeed = (TrafficStats.getTotalTxBytes() - totalTxBytes) * 1000 / td;
-			downloadSpeed = (TrafficStats.getTotalRxBytes() - totalRxBytes) * 1000 / td;
-			totalTxBytes = TrafficStats.getTotalTxBytes();
-			totalRxBytes = TrafficStats.getTotalRxBytes();
-			lastUpdateTime = SystemClock.elapsedRealtime();
-			
-			setText(createText());
-			setTextSize(TypedValue.COMPLEX_UNIT_SP, prefFontSize);
+			uploadSpeed=(TrafficStats.getTotalTxBytes()-totalTxBytes)*1000/td;
+			downloadSpeed=(TrafficStats.getTotalRxBytes()-totalRxBytes)*1000/td;
+			totalTxBytes=TrafficStats.getTotalTxBytes();
+			totalRxBytes=TrafficStats.getTotalRxBytes();
+			lastUpdateTime=SystemClock.elapsedRealtime();
+
+			setText( createText() );
+			setTextSize( TypedValue.COMPLEX_UNIT_SP, prefFontSize );
 			refreshColor();
-			
+
 			update();
-			
-			super.handleMessage(msg);
+
+			super.handleMessage( msg );
 		}
 	};
 
@@ -289,7 +289,6 @@ public class TrafficView extends TextView {
 		}
 
 		String strUploadValue, strDownloadValue;
-
 		if( prefHideInactive && uploadValue<=0 )
 			strUploadValue="";
 		else
@@ -299,8 +298,10 @@ public class TrafficView extends TextView {
 		else
 			strDownloadValue=downloadDecimalFormat.format( downloadValue );
 
+		String uploadSuffix, downloadSuffix;
 		switch( prefSuffix )
 		{
+			default:
 			case 0:
 				uploadSuffix=downloadSuffix=" ";
 				break;
@@ -332,11 +333,7 @@ public class TrafficView extends TextView {
 		if( !prefShowDownloadSpeed )
 			strDownloadValue="";
 
-		String delimiter;
-		if( prefDisplay==0 )
-			delimiter="\n";
-		else
-			delimiter=" ";
+		String delimiter=prefDisplay==0 ? "\n" : " ";
 
 		if( strUploadValue.length()>0 && strDownloadValue.length()>0 )
 			return strUploadValue+delimiter+strDownloadValue;
@@ -344,15 +341,18 @@ public class TrafficView extends TextView {
 			return strUploadValue+strDownloadValue;
 	}
 
-	public void update() {
-		mTrafficHandler.removeCallbacks(mRunnable);
-		mTrafficHandler.postDelayed(mRunnable, prefUpdateInterval);
+	public void update()
+	{
+		mTrafficHandler.removeCallbacks( mRunnable );
+		mTrafficHandler.postDelayed( mRunnable, prefUpdateInterval );
 	}
 
-	Runnable mRunnable = new Runnable() {
+	Runnable mRunnable=new Runnable()
+	{
 		@Override
-		public void run() {
-			mTrafficHandler.sendEmptyMessage(0);
+		public void run()
+		{
+			mTrafficHandler.sendEmptyMessage( 0 );
 		}
 	};
 	
